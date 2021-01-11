@@ -1,0 +1,23 @@
+version: "3.3"
+services:
+  db:
+    image: "mongo:bionic"
+    container_name: users-service-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    # volumes:
+    #   - "./db:/data/db"
+  api:
+    build: .
+    container_name: users-service-api
+    volumes:
+      - ".:/app"
+    # environment:
+    #   - CORS_ORIGIN=http://localhost:5001
+    links:
+      - db
+    ports:
+      - "8000:3000"
+volumes:
+  redis:
