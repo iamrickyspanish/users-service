@@ -1,37 +1,43 @@
-const { json, send } = require("micro");
+const { json, send, createError } = require("micro");
 const query = require("micro-query");
 const url = require("url");
-const User = require("./lib/user");
-const db = require("./lib/db");
-const notFoundError = require("./lib/errors/notFound");
-const noDbConnectionError = require("./lib/errors/noDbConnection");
+const PasswordService = require("./lib/passwordService");
+const UserService = require("./lib/userService");
+
+const passwordService = new PasswordService({
+  invalidFormatError: createError(400, "invalid format")
+});
+
+const service = new UserService({
+  notFoundError: createError(404, "item not found"),
+  noDatabaseError: createError(500, "no db connection"),
+  hashPasswordFn: passwordService.hash.bind(passwordService)
+});
 
 mapRequestToId = (req) => {
-  const { pathname } = url.parse(req.url, true);
-  return pathname.split("/").filter((f) => f)[0];
+  const { pathname } = new url.URL(req.url, `http://${req.headers.host}`);
+  return pathname.slice(1).split("/")[0];
 };
 
+const routeNotFoundError = createError(404, "route not found");
+
 module.exports = async (req, res) => {
-  if (db.readyState !== 1) throw noDbConnectionError;
-  if (req.method === "POST") {
-    const user = new User(await json(req));
-    return send(res, 201, await user.save());
-  }
+  if (!service.isReady()) throw noDbConnectionError;
   const id = mapRequestToId(req);
-  if (id) {
-    const user = await User.findById(id);
-    if (!user) throw notFoundError;
-    if (req.method === "GET") {
-      return user;
-    } else if (req.method === "PUT") {
-      return user.update(await json(req), { new: true });
-    } else if (req.method === "DELETE") {
-      return user.delete();
-    }
-  } else {
-    if (req.method === "GET") {
-      return User.find(query(req));
-    }
+  if ((req.method === "PUT" || req.method === "DELETE") && !id)
+    throw routeNotFoundError;
+  switch (req.method) {
+    case "GET":
+      return id ? service.get(id) : service.index(query(req));
+    case "POST":
+      return id === "auth"
+        ? await service.authenticate(await json(req))
+        : send(res, 201, await service.create(await json(req)));
+    case "PUT":
+      return service.update(id, await json(req));
+    case "DELETE":
+      return service.destroy(id);
+    default:
+      throw routeNotFoundError;
   }
-  throw notFoundError;
 };
