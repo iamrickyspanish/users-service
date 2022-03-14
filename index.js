@@ -14,7 +14,7 @@ const service = new UserService({
   hashPasswordFn: passwordService.hash.bind(passwordService)
 });
 
-mapRequestToId = (req) => {
+const mapRequestToId = (req) => {
   const { pathname } = new url.URL(req.url, `http://${req.headers.host}`);
   return pathname.slice(1).split("/")[0];
 };

@@ -13,8 +13,9 @@ services:
     container_name: users-service-api
     volumes:
       - ".:/app"
-    # environment:
-    #   - CORS_ORIGIN=http://localhost:5001
+    environment:
+      DB_HOST: mongodb://root:root@mongo:27017/users?authSource=admin
+      # CORS_ORIGIN: http://localhost:5001
     links:
       - db
     ports:
