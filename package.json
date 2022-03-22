@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "micro",
-    "dev": "micro-dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "NODE_ENV=production micro",
+    "dev": "NODE_ENV=develop micro-dev",
+    "test": "node ./tests/preTest.js && ava"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,10 @@
     "mongoose": "^5.11.11"
   },
   "devDependencies": {
-    "micro-dev": "^3.0.0"
+    "ava": "^4.1.0",
+    "axios": "^0.26.1",
+    "micro-dev": "^3.0.0",
+    "mongodb": "^4.4.1",
+    "test-listen": "^1.1.0"
   }
 }
