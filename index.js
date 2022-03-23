@@ -11,6 +11,7 @@ const passwordService = new PasswordService({
 const service = new UserService({
   notFoundError: createError(404, "item not found"),
   noDatabaseError: createError(500, "no db connection"),
+  alreadyRegistereddError: createError(400, "email already registered"),
   hashPasswordFn: passwordService.hash.bind(passwordService)
 });
 

@@ -20,3 +20,13 @@ test.serial("GET / returns empty array when no users available", async (t) => {
   const { data: users } = await axios.get(t.context.url);
   t.true(Array.isArray(users) && !users.length);
 });
+
+test.serial(
+  "GET / returns users as objects without email attribute",
+  async (t) => {
+    await t.context.collection.insertOne(userA);
+    const { data: users } = await axios.get(t.context.url);
+    console.log("users", users);
+    t.true(users[0].email === userA.email && users[0].password === undefined);
+  }
+);
