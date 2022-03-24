@@ -12,6 +12,7 @@ const service = new UserService({
   notFoundError: createError(404, "item not found"),
   noDatabaseError: createError(500, "no db connection"),
   alreadyRegistereddError: createError(400, "email already registered"),
+  authError: createError(401, "authentication error"),
   hashPasswordFn: passwordService.hash.bind(passwordService)
 });
 
@@ -31,9 +32,14 @@ module.exports = async (req, res) => {
     case "GET":
       return id ? service.get(id) : service.index(query(req));
     case "POST":
-      return id === "auth"
-        ? await service.authenticate(await json(req))
-        : send(res, 201, await service.create(await json(req)));
+      // console.log("??????", id);
+      if (id === "auth") {
+        const user = await service.authenticate(await json(req));
+        return send(res, 200, user);
+      } else {
+        const user = await service.create(await json(req));
+        return send(res, 201, user);
+      }
     case "PUT":
       return service.update(id, await json(req));
     case "DELETE":

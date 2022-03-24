@@ -6,17 +6,17 @@ const handler = require("../index");
 const DB_NAME = "users-test";
 const COLLECTION_NAME = "users";
 
-const preTest = async () => {
-  await client.connect();
-  const collections = await client.db().listCollections().toArray();
-  const exists = !!collections.find((c) => c.name === COLLECTION_NAME);
-  if (exists)
-    for (let collection of collections) {
-      await collection.deleteMany({});
-    }
-  else db.createCollection(COLLECTION_NAME);
-  await client.close();
-};
+// const preTest = async () => {
+//   await client.connect();
+//   const collections = await client.db().listCollections().toArray();
+//   const exists = !!collections.find((c) => c.name === COLLECTION_NAME);
+//   if (exists)
+//     for (let collection of collections) {
+//       await collection.deleteMany({});
+//     }
+//   else db.createCollection(COLLECTION_NAME);
+//   await client.close();
+// };
 
 const before = async (t) => {
   t.context = {};
@@ -28,7 +28,7 @@ const before = async (t) => {
   t.context.url = await listen(t.context.service);
   await (async () => {
     return new Promise((resolve) => {
-      setTimeout(resolve, 1500);
+      setTimeout(resolve, 1000);
     });
   })();
 };
@@ -37,8 +37,13 @@ const after = (t) => {
   t.context.service.close();
 };
 
+const beforeEach = async (t) => {
+  await t.context.collection.deleteMany();
+};
+
 module.exports = {
-  preTest,
+  // preTest,
+  beforeEach,
   before,
   after
 };

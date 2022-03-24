@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=production micro",
     "dev": "NODE_ENV=develop micro-dev",
-    "test": "node ./tests/preTest.js && ava"
+    "test": "node ./tests/preTest.js && ava -c 1"
   },
   "author": "",
   "license": "ISC",

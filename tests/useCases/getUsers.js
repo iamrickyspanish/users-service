@@ -1,14 +1,11 @@
 const axios = require("axios");
 const test = require("ava");
 const { userA, userB } = require("../fixtures");
-const { before, after } = require("../helpers");
+const { before, after, beforeEach } = require("../helpers");
 
 test.before(before);
 test.after(after);
-
-test.beforeEach(async (t) => {
-  await t.context.collection.deleteMany();
-});
+test.beforeEach(beforeEach);
 
 test.serial("GET / returns all users as array", async (t) => {
   await t.context.collection.insertMany([userA, userB]);
@@ -26,7 +23,6 @@ test.serial(
   async (t) => {
     await t.context.collection.insertOne(userA);
     const { data: users } = await axios.get(t.context.url);
-    console.log("users", users);
     t.true(users[0].email === userA.email && users[0].password === undefined);
   }
 );
