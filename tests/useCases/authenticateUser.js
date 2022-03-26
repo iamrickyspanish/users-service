@@ -1,44 +1,45 @@
 const test = require("ava");
-const axios = require("axios");
 const { userA, userB } = require("../fixtures");
-const { before, after, beforeEach } = require("../helpers");
+const { before, after, beforeEach, login, create } = require("../helpers");
 
-test.before(async (t) => {
-  await before(t);
-  await t.context.collection.insertOne(userA);
-  t.context.url = `${t.context.url}/auth`;
-});
-test.after(after);
-test.beforeEach(beforeEach);
-
-test.serial("POST /auth authenticate user by email and password", async (t) => {
-  await axios.post(t.context.url, {
-    email: userA.email,
-    password: userA.password
-  });
-  t.pass();
+test.serial.before(before);
+test.serial.after(after);
+test.serial.beforeEach(async (t) => {
+  await beforeEach(t);
+  await create(t.context.url, userA);
 });
 
 test.serial(
-  "POST /auth successfull authentication returns status 200 and user data without password field",
+  "[POST /auth] successfull authentication returns status 200 and user data without password field",
   async (t) => {
-    const { status, data: user } = await axios.post(t.context.url, {
+    const res = await login(t.context.url, {
       email: userA.email,
       password: userA.password
     });
-    t.true(status === 200);
-    t.true(user.email === userA.email && userA.password === undefined);
+    t.is(res.status, 200);
+    const user = await res.json();
+    t.true(user.email === userA.email && user.password === undefined);
   }
 );
 
-test.serial("POST /auth returns error 401 on invalid login", async (t) => {
-  const { response } = await t.throwsAsync(
-    async () =>
-      axios.post(t.context.url, {
-        email: userA.email,
-        password: userB.password
-      })
-    // { code: 401 }
-  );
-  t.is(response.status, 401);
-});
+test.serial(
+  "[POST /auth] failed authentication because user does not exist: returns status 401",
+  async (t) => {
+    const res = await login(t.context.url, {
+      email: userB.email,
+      password: userB.password
+    });
+    t.is(res.status, 401);
+  }
+);
+
+test.serial(
+  "[POST /auth] failed authentication because password not valid: returns status 401",
+  async (t) => {
+    const res = await login(t.context.url, {
+      email: userB.email,
+      password: userB.password
+    });
+    t.is(res.status, 401);
+  }
+);

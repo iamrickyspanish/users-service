@@ -7,7 +7,7 @@ const userA = {
 
 const userB = {
   email: "b@mail.com",
-  password: "secret123"
+  password: "secret456"
 };
 
 const client = new MongoClient(process.env.TEST_DB_HOST);

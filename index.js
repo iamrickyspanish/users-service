@@ -13,7 +13,8 @@ const service = new UserService({
   noDatabaseError: createError(500, "no db connection"),
   alreadyRegistereddError: createError(400, "email already registered"),
   authError: createError(401, "authentication error"),
-  hashPasswordFn: passwordService.hash.bind(passwordService)
+  hashPasswordFn: passwordService.hash.bind(passwordService),
+  comparePasswordFn: passwordService.compare.bind(passwordService)
 });
 
 const mapRequestToId = (req) => {
@@ -32,7 +33,6 @@ module.exports = async (req, res) => {
     case "GET":
       return id ? service.get(id) : service.index(query(req));
     case "POST":
-      // console.log("??????", id);
       if (id === "auth") {
         const user = await service.authenticate(await json(req));
         return send(res, 200, user);

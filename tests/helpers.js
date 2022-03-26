@@ -2,21 +2,9 @@ const { client } = require("./fixtures");
 const micro = require("micro");
 const listen = require("test-listen");
 const handler = require("../index");
-
+const fetch = require("cross-fetch");
 const DB_NAME = "users-test";
 const COLLECTION_NAME = "users";
-
-// const preTest = async () => {
-//   await client.connect();
-//   const collections = await client.db().listCollections().toArray();
-//   const exists = !!collections.find((c) => c.name === COLLECTION_NAME);
-//   if (exists)
-//     for (let collection of collections) {
-//       await collection.deleteMany({});
-//     }
-//   else db.createCollection(COLLECTION_NAME);
-//   await client.close();
-// };
 
 const before = async (t) => {
   t.context = {};
@@ -41,9 +29,30 @@ const beforeEach = async (t) => {
   await t.context.collection.deleteMany();
 };
 
+const login = async (url, credentials) =>
+  fetch(`${url}/auth`, {
+    method: "POST",
+    body: JSON.stringify(credentials),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+const create = async (url, data) => {
+  const res = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  return res;
+};
+
 module.exports = {
-  // preTest,
   beforeEach,
   before,
-  after
+  after,
+  login,
+  create
 };
