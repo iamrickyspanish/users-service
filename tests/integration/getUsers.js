@@ -8,7 +8,7 @@ test.serial.after(after);
 test.serial.beforeEach(beforeEach);
 
 test.serial("[GET /] returns all users as array", async (t) => {
-  await t.context.collection.insertMany([userA, userB]);
+  await t.context.collection.insertMany([{ ...userA }, { ...userB }]);
   const res = await fetch(t.context.url);
   const users = await res.json();
   t.true(Array.isArray(users) && users.length == 2);
@@ -27,7 +27,7 @@ test.serial(
 test.serial(
   "[GET /] returns users as objects without email attribute",
   async (t) => {
-    await t.context.collection.insertOne(userA);
+    await t.context.collection.insertOne({ ...userA });
     const res = await fetch(t.context.url);
     t.is(res.status, 200);
     const users = await res.json();
@@ -38,7 +38,9 @@ test.serial(
 test.serial(
   "[GET /:id] returns single user as objects without email attribute",
   async (t) => {
-    const { insertedId: userId } = await t.context.collection.insertOne(userA);
+    const { insertedId: userId } = await t.context.collection.insertOne({
+      ...userA
+    });
     const res = await fetch(`${t.context.url}/${userId}`);
     t.is(res.status, 200);
     const user = await res.json();

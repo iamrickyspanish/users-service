@@ -27,7 +27,7 @@ test.serial(
 test.serial(
   "[POST /] unique emil: should not create user with already existing email, returns 400",
   async (t) => {
-    await t.context.collection.insertOne(userA);
+    await t.context.collection.insertOne({ ...userA });
     const res = await create(t.context.url, userA);
     t.is(res.status, 400);
   }

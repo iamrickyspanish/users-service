@@ -3,6 +3,7 @@ const micro = require("micro");
 const listen = require("test-listen");
 const handler = require("../index");
 const fetch = require("cross-fetch");
+
 const DB_NAME = "users-test";
 const COLLECTION_NAME = "users";
 
@@ -38,21 +39,38 @@ const login = async (url, credentials) =>
     }
   });
 
-const create = async (url, data) => {
-  const res = await fetch(url, {
+const create = async (url, data) =>
+  fetch(url, {
     method: "POST",
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json"
     }
   });
-  return res;
-};
+
+const destroy = async (url, id) =>
+  fetch(`${url}/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+const update = async (url, id, data) =>
+  fetch(`${url}/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
 
 module.exports = {
   beforeEach,
   before,
   after,
   login,
+  destroy,
+  update,
   create
 };

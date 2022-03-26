@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
         const user = await service.create(await json(req));
         return send(res, 201, user);
       }
-    case "PUT":
+    case "PATCH":
       return service.update(id, await json(req));
     case "DELETE":
       return service.destroy(id);
